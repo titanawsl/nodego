@@ -8,32 +8,30 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      OCTOPUS_SPACE: 'Default'  # 改成你的 Space 名称
+      OCTOPUS_SPACE: 'Default'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ====== 这里放你的构建步骤 ======
-      # 如果是前端项目:
-      - name: Build
+      # 安装 Node 依赖
+      - name: Install dependencies
         run: |
           npm install
-          npm run build
-      # 如果是 .NET 项目:
-      # - name: Build
-      #   run: |
-      #     dotnet publish -c Release -o ./dist
 
-      # 打包
+      # 打包整个项目目录
       - name: Create Zip package
         uses: OctopusDeploy/create-zip-package-action@v3
         with:
-          package_id: 'MyApp'          # 包名，后面在 Octopus 里要用
+          package_id: 'MyApp'
           version: '1.0.${{ github.run_number }}'
           output_folder: './packages/'
-          base_path: './dist/'
-          files: '**/*.*'
+          base_path: './'
+          files: |
+            **/*
+            !.git/**
+            !.github/**
+            !node_modules/.cache/**
 
       # 推包到 Octopus
       - name: Push package
@@ -49,7 +47,7 @@ jobs:
         with:
           server: ${{ secrets.OCTOPUS_URL }}
           api_key: ${{ secrets.OCTOPUS_API_KEY }}
-          project: 'stake'         # 改成你在 Octopus 里创建的项目名
+          project: 'stake'    # ← 改成你 Octopus 里的项目名
           release_number: '1.0.${{ github.run_number }}'
 
       # 部署到 Dev
