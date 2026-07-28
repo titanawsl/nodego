@@ -16,11 +16,10 @@ jobs:
 
       # ====== 这里放你的构建步骤 ======
       # 如果是前端项目:
-      - name:  Build
+      - name:  ABuild
         run: |
           npm install
           npm run build
-      
       # 如果是 .NET 项目:
       # - name: Build
       #   run: |
